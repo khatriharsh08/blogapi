@@ -10,11 +10,13 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/register',[AuthController::class, 'register']);
-Route::post('/login',[AuthController::class, 'login']);
+Route::post('/login',[AuthController::class, 'login'])->name('login');
 
 Route::middleware('auth:sanctum')->group(
     function () {
         Route::post('/posts',[PostController::class, 'store']);
+        Route::put('/posts/{id}', [PostController::class, 'update']);
+        Route::delete('/posts/{id}', [PostController::class, 'destroy']);
     }
 );
 

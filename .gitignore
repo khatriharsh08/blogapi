@@ -1,26 +1,43 @@
-*.log
-.DS_Store
+# Dependencies
+/node_modules
+/vendor
+
+# Environment
 .env
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
-/.codex
-/.cursor/
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
 /auth.json
-/node_modules
+
+# SQLite Databases
+*.sqlite
+*.sqlite-journal
+database/database.sqlite
+
+# Laravel Specific
 /public/build
 /public/hot
 /public/storage
 /storage/*.key
 /storage/pail
-/vendor
-_ide_helper.php
 Homestead.json
 Homestead.yaml
+
+# Logs & Caches
+*.log
+/.phpunit.cache
+.phpunit.result.cache
+
+# IDE, Editor & Tooling
+.DS_Store
 Thumbs.db
+.phpactor.json
+/.codex
+/.cursor/
+/.fleet/
+/.idea
+/.nova
+/.vscode
+/.zed
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php

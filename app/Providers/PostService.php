@@ -19,21 +19,21 @@ class PostService
         return Post::with('user')->find($id);
     }
 
-
-
-    /**
-     * Register services.
-     */
-    public function register(): void
-    {
-        //
+    public function update($id, $data){
+        $post = Post::find($id);
+        if ($post) {
+            $post->update($data);
+            return $post;
+        }
+        return null;
     }
 
-    /**
-     * Bootstrap services.
-     */
-    public function boot(): void
-    {
-        //
+    public function delete($id){
+        $post = Post::find($id);
+        if ($post) {
+            $post->delete();
+            return true;
+        }
+        return false;
     }
 }
