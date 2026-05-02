@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            // Explicitly defining the index to fulfill production-level scaling requirements
+            $table->foreignId('user_id')->index()->constrained()->onDelete('cascade');
             $table->string('title');
             $table->text('content');
             $table->timestamps();

@@ -7,7 +7,8 @@ use App\Models\Post;
 class PostService
 {
     public function getAll(){
-        return Post::with('user')->latest()->get();
+        // Return paginated posts eagerly loading the associated user
+        return Post::with('user')->latest()->paginate(10);
     }
 
     public function create($data){

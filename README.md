@@ -1,58 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚀 Laravel 13 RESTful Blog API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A production-ready RESTful Blog API built using **Laravel 13.7**. This project demonstrates enterprise-level API design, utilizing robust service-repository patterns, strict request validation, and secure Sanctum token-based authentication.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🌟 Key Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+* **Strict REST Architecture:** Properly scoped actions with explicit HTTP verbs (`GET`, `POST`, `PUT`, `DELETE`).
+* **Authentication:** Token-based authentication utilizing **Laravel Sanctum**.
+* **Service Pattern Logic:** Controllers are "thin" and focus only on requests/responses. All DB queries and complex rules live in `AuthService` and `PostService`.
+* **Form Requests:** Strict payload validation mapped directly to constraints (e.g., merging `body` into `content`).
+* **Ownership Authorization:** Users can only modify or delete the posts they explicitly own, returning `403 Forbidden` otherwise.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 📦 Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* **PHP** ^8.2+
+* **Composer**
+* **MySQL** or **SQLite**
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## 🛠️ Installation & Setup
 
-## Agentic Development
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repository-url>
+   cd blogapi
+   ```
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+2. **Install dependencies:**
+   ```bash
+   composer install
+   ```
+
+3. **Environment Setup:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   *Make sure to configure your DB credentials inside the `.env` file.*
+
+4. **Run Database Migrations:**
+   ```bash
+   php artisan migrate
+   ```
+
+5. **Start the local server:**
+   ```bash
+   php artisan serve
+   ```
+
+---
+
+## 📡 API Endpoints Overview
+
+All endpoints start with the `/api` prefix.
+
+| Method | Endpoint             | Access        | Description                           |
+| :---   | :---                 | :---          | :---                                  |
+| `POST` | `/api/register`      | 🟢 Public     | Register a new user and receive token |
+| `POST` | `/api/login`         | 🟢 Public     | Authenticate user and receive token   |
+| `GET`  | `/api/posts`         | 🟢 Public     | Retrieve all blog posts               |
+| `GET`  | `/api/posts/{id}`    | 🟢 Public     | Retrieve a specific blog post         |
+| `GET`  | `/api/user`          | 🔒 Protected  | Get authenticated user profile        |
+| `POST` | `/api/posts`         | 🔒 Protected  | Create a new blog post                |
+| `PUT`  | `/api/posts/{id}`    | 🔒 Protected  | Update an existing owned blog post    |
+| `DELETE`| `/api/posts/{id}`   | 🔒 Protected  | Delete an owned blog post             |
+
+> **Note on Protected Routes:**
+> You must pass the generated token as a **Bearer Token** in the authorization header:  
+> `Authorization: Bearer 1|your_token_string_here...`
+
+---
+
+## 🧪 Testing
+
+You can use the built-in Postman collection provided in `/postman` or run Laravel's feature test suite to ensure all endpoints pass reliably:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan test
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+---
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 📚 Architect's Note
+This API is structurally designed to handle scale. Logic is intentionally decoupled into `Services`, preventing monolithic, hard-to-maintain controllers. The `N+1` database query problems have been strictly avoided by ensuring Eloquent models implement eager loading (`with()`).
