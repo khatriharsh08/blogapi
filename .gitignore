@@ -42,5 +42,5 @@ _ide_helper.php
 _ide_helper_models.php
 .phpstorm.meta.php
 
-# Assignments / Local Tasks
-/Assignments
+# Local Environment (Do not ignore Assignments or WorkNote so we can track progress)
+# /Assignments

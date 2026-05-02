@@ -23,25 +23,17 @@ class PostService
         return Post::with('user')->find($id);
     }
 
-    public function update($id, $data){
-        return DB::transaction(function () use ($id, $data) {
-            $post = Post::find($id);
-            if ($post) {
-                $post->update($data);
-                return $post;
-            }
-            return null;
+    public function update(Post $post, $data){
+        return DB::transaction(function () use ($post, $data) {
+            $post->update($data);
+            return $post;
         });
     }
 
-    public function delete($id){
-        return DB::transaction(function () use ($id) {
-            $post = Post::find($id);
-            if ($post) {
-                $post->delete();
-                return true;
-            }
-            return false;
+    public function delete(Post $post){
+        return DB::transaction(function () use ($post) {
+            $post->delete();
+            return true;
         });
     }
 }

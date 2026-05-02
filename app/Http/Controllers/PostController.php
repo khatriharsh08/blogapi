@@ -27,32 +27,23 @@ class PostController extends Controller
         return response()->json(new PostResource($post), 201);
     }
 
-    public function show($id){
-        $post = $this->postService->find($id);
-
-        if(!$post){
-            return response()->json(['message' => 'Post not found'], 404);
-        }
-
+    public function show(Post $post){
+        $post->loadMissing('user');
         return new PostResource($post);
     }
 
-    public function update(UpdatePostRequest $request, $id){
-        $post = Post::findOrFail($id);
-        
+    public function update(UpdatePostRequest $request, Post $post){
         Gate::authorize('update', $post);
 
-        $updatedPost = $this->postService->update($id, $request->validated());
+        $updatedPost = $this->postService->update($post, $request->validated());
 
         return response()->json(new PostResource($updatedPost), 200);
     }
 
-    public function destroy($id){
-        $post = Post::findOrFail($id);
-        
+    public function destroy(Post $post){
         Gate::authorize('delete', $post);
 
-        $this->postService->delete($id);
+        $this->postService->delete($post);
 
         return response()->json(['message' => 'Post deleted successfully'], 200);
     }
