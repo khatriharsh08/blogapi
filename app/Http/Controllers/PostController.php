@@ -29,7 +29,16 @@ class PostController extends Controller
 
     public function show(Post $post){
         $post->loadMissing('user');
-        return new PostResource($post);
+        
+        // Paginate comments to avoid massive data load
+        $comments = $post->comments()
+            ->with('user') // Avoid N+1 on comment authors
+            ->latest()
+            ->paginate();
+
+        return (new PostResource($post))->additional([
+            'comments' => \App\Http\Resources\CommentResource::collection($comments)->response()->getData(true)
+        ]);
     }
 
     public function update(UpdatePostRequest $request, Post $post){

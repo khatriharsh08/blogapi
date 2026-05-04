@@ -1,17 +1,19 @@
 # Dependencies
 /node_modules
 /vendor
+npm-debug.log
+yarn-error.log
 
-# Environment
+# Environment & Secrets
 .env
-.env.backup
-.env.production
+.env.*
+!.env.example
 /auth.json
 
 # SQLite Databases
 *.sqlite
 *.sqlite-journal
-database/database.sqlite
+/database/database.sqlite
 
 # Laravel Specific
 /public/build
@@ -22,18 +24,26 @@ database/database.sqlite
 Homestead.json
 Homestead.yaml
 
-# Logs & Caches
+# Logs, Caches & Coverage
 *.log
 /.phpunit.cache
 .phpunit.result.cache
+/coverage
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # IDE, Editor & Tooling
-.DS_Store
-Thumbs.db
 .phpactor.json
 /.codex
-/.cursor/
-/.fleet/
+/.cursor
+/.fleet
 /.idea
 /.nova
 /.vscode
@@ -44,3 +54,4 @@ _ide_helper_models.php
 
 # Local Environment (Do not ignore Assignments or WorkNote so we can track progress)
 # /Assignments
+# /WorkNote

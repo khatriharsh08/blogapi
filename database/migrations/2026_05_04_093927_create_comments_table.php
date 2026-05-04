@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('posts', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            // Explicitly defining the index to fulfill production-level scaling requirements
-            $table->foreignId('user_id')->index()->constrained()->onDelete('cascade');
-            $table->string('title');
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->text('content');
             $table->timestamps();
             $table->softDeletes();
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('posts');
+        Schema::dropIfExists('comments');
     }
 };
