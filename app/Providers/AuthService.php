@@ -13,13 +13,12 @@ class AuthService
         return User::create($data);
     }
 
-    public function login(array $data)
+    public function login(array $credentials)
     {
-        $user = User::where('email', $data['email'])->first();
-
-        if (!$user || !Hash::check($data['password'], $user->password)) {
+        if (!auth()->attempt($credentials)) {
             return null;
         }
-        return $user->createToken('api-token')->plainTextToken;
+
+        return auth()->user()->createToken('auth_token')->plainTextToken;
     }
 }

@@ -4,6 +4,9 @@
 npm-debug.log
 yarn-error.log
 
+/Assignments
+/WorkNote
+
 # Environment & Secrets
 .env
 .env.*

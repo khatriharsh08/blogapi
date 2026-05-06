@@ -14,8 +14,7 @@ class PostService
 
     public function create($data){
         return DB::transaction(function () use ($data) {
-            $data['user_id'] = auth()->id();
-            return Post::create($data);
+            return auth()->user()->posts()->create($data);
         });
     }
 
