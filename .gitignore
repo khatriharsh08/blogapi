@@ -4,9 +4,6 @@
 npm-debug.log
 yarn-error.log
 
-/Assignments
-/WorkNote
-
 # Environment & Secrets
 .env
 .env.*
@@ -33,28 +30,11 @@ Homestead.yaml
 .phpunit.result.cache
 /coverage
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
 # IDE, Editor & Tooling
-.phpactor.json
-/.codex
-/.cursor
-/.fleet
 /.idea
-/.nova
 /.vscode
-/.zed
-_ide_helper.php
-_ide_helper_models.php
-.phpstorm.meta.php
 
-# Local Environment (Do not ignore Assignments or WorkNote so we can track progress)
-# /Assignments
-# /WorkNote
+# Extra / Custom folders
+/Assignments
+/WorkNote
+/postman
