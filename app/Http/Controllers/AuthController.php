@@ -1,54 +1,56 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Providers\AuthService;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\LoginRequest;
 
-class AuthController extends Controller
+readonly class AuthController extends Controller
 {
     public function __construct(private AuthService $authService)
     {
-        // Constructor injection of the AuthService
     }
 
-    public function register(RegisterRequest $request)
+    public function register(RegisterRequest $request): JsonResponse
     {
         $user = $this->authService->register($request->validated());
         
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
+        return $this->success([
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user
-        ], 201);
+        ], 'User registered successfully', 201);
     }
 
-    public function login(LoginRequest $request)
+    public function login(LoginRequest $request): JsonResponse
     {
         $token = $this->authService->login($request->only('email', 'password'));
         if (!$token) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            return $this->error('Invalid credentials', 401);
         }
         
-        return response()->json([
+        return $this->success([
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => auth()->user()
-        ], 200);
+        ], 'Logged in successfully', 200);
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logged out successfully'], 200);
+        return $this->success(null, 'Logged out successfully', 200);
     }
 
-    public function me(Request $request)
+    public function me(Request $request): JsonResponse
     {
-        return response()->json($request->user());
+        return $this->success($request->user(), 'User fetched successfully');
     }
 }

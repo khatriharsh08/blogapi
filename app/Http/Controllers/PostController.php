@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Gate;
 use App\Providers\PostService;
 use App\Http\Requests\StorePostRequest;
@@ -10,50 +13,58 @@ use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
 
-class PostController extends Controller
+readonly class PostController extends Controller
 {
     public function __construct(private PostService $postService)
     {
-        // Constructor injection of the PostService
     }
 
-    public function index(){
-        $posts = $this->postService->getAll();
-        return PostResource::collection($posts);
-    }
-
-    public function store(StorePostRequest $request){
-        $post = $this->postService->create($request->validated());
-        return response()->json(new PostResource($post), 201);
-    }
-
-    public function show(Post $post){
-        $post->loadMissing('user');
+    public function index(Request $request): JsonResponse
+    {
+        $filters = $request->only(['author_id', 'search', 'sort']);
+        $perPage = (int) $request->input('per_page', 15);
         
-        // Paginate comments to avoid massive data load
-        $comments = $post->comments()
-            ->with('user') // Avoid N+1 on comment authors
-            ->latest()
-            ->paginate();
-
-        return (new PostResource($post))->additional([
-            'comments' => \App\Http\Resources\CommentResource::collection($comments)->response()->getData(true)
-        ]);
+        $posts = $this->postService->getAll($filters, $perPage);
+        
+        return $this->success(
+            PostResource::collection($posts)->response()->getData(true),
+            'Posts fetched successfully'
+        );
     }
 
-    public function update(UpdatePostRequest $request, Post $post){
+    public function store(StorePostRequest $request): JsonResponse
+    {
+        $post = $this->postService->create($request->validated());
+        return $this->success(new PostResource($post), 'Post created successfully', 201);
+    }
+
+    public function show(int $id): JsonResponse
+    {
+        // Offload caching and complex relation fetching to the Service layer
+        $postData = $this->postService->getPostWithComments($id);
+
+        if (!$postData) {
+            return $this->error('Post not found', 404);
+        }
+
+        return $this->success($postData, 'Post fetched successfully');
+    }
+
+    public function update(UpdatePostRequest $request, Post $post): JsonResponse
+    {
         Gate::authorize('update', $post);
 
         $updatedPost = $this->postService->update($post, $request->validated());
 
-        return response()->json(new PostResource($updatedPost), 200);
+        return $this->success(new PostResource($updatedPost), 'Post updated successfully');
     }
 
-    public function destroy(Post $post){
+    public function destroy(Post $post): JsonResponse
+    {
         Gate::authorize('delete', $post);
 
         $this->postService->delete($post);
 
-        return response()->json(['message' => 'Post deleted successfully'], 200);
+        return $this->success(null, 'Post deleted successfully');
     }
 }
