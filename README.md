@@ -1,88 +1,136 @@
-﻿# 🚀 Laravel 13 Enterprise RESTful Blog API
+# Laravel 13 Blog API
 
-A production-ready, industry-standard RESTful Blog API built utilizing **Laravel 13**. This project demonstrates enterprise-level API design, leveraging Service-DTO architectural patterns, strict request validation, Gate authorization, and secure Sanctum token-based authentication.
+A production-ready RESTful Blog API built with **Laravel 13**, featuring Sanctum token authentication, policy-based authorization, and clean Service/DTO architecture. The API supports user authentication, posts, comments, filtering, and pagination with consistent JSON responses.
 
----
+## Table of Contents
 
-## 🌟 Key Features
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Requirements](#requirements)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [API Documentation](#api-documentation)
+- [Development Scripts](#development-scripts)
+- [Testing](#testing)
+- [Linting](#linting)
+- [Build Assets](#build-assets)
+- [Project Structure](#project-structure)
 
-* **Enterprise Architecture:** Action-oriented Thin Controllers with business logic abstracted into decoupled Services and Data Transfer Objects (DTOs).
-* **Strict Type Safety:** Strongly enforced declare(strict_types=1); and PHP 8.3 features across all classes.
-* **Advanced Security:** Route throttling (rate limiting), explicit Idempotency middleware, and centralized JSON exception handling.
-* **Authentication & Authorization:** Token-based authentication using **Laravel Sanctum**. Ownership restrictions natively enforced via Eloquent Policies and Gates.
-* **Form Requests:** Strict incoming payload validation mapped directly to robust HTTP Form request classes.
+## Features
 
----
+- Token-based authentication via Laravel Sanctum
+- Policy/Gate authorization for post and comment ownership
+- CRUD endpoints for posts and comments
+- Filtering, sorting, and pagination for posts
+- Centralized validation via Form Requests
+- Consistent JSON response envelope and error format
+- Rate limiting on auth and write endpoints
 
-## 📦 Requirements
+## Tech Stack
 
-* **PHP** ^8.3+
-* **Composer**
-* **MySQL / SQLite**
+- **Laravel 13** / PHP 8.3+
+- **Sanctum** for API tokens
+- **MySQL** or **SQLite**
+- **Vite** + **Tailwind CSS** (frontend build assets)
 
----
+## Requirements
 
-## 🛠️ Installation & Setup
+- PHP 8.3+
+- Composer
+- Node.js 18+
+- MySQL or SQLite
 
-1. **Clone the repository:**
-   `ash
-   git clone <your-repository-url>
-   cd blogapi
-   `
+## Quick Start
 
-2. **Install dependencies:**
-   `ash
-   composer install
-   `
+```bash
+git clone https://github.com/khatriharsh08/blogapi.git
+cd blogapi
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+```
 
-3. **Environment Setup:**
-   `ash
-   cp .env.example .env
-   php artisan key:generate
-   `
+### Database (SQLite example)
 
-4. **Run Database Migrations & Seeders:**
-   `ash
-   php artisan migrate --seed
-   `
+```bash
+touch database/database.sqlite
+php artisan migrate --seed
+```
 
-5. **Start the local server:**
-   `ash
-   php artisan serve
-   `
+### Run the API
 
----
+```bash
+php artisan serve
+```
 
-## 📖 API Documentation (Endpoints)
+The API is available at `http://localhost:8000/api/v1`.
 
-For a complete deep-dive into request/response shapes, headers, and payloads, please see the [API_DOCUMENTATION.txt](./API_DOCUMENTATION.txt) included in this repository.
+### Seeded Demo User
 
-**Quick Overview (Base URL: /api/v1)**
+After seeding, you can log in with:
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| POST | /register | 🟢 Public | Register user & receive token |
-| POST | /login | 🟢 Public | Authenticate user & receive token |
-| POST | /logout | 🔒 Protected | Invalidate current token |
-| GET  | /me | 🔒 Protected | Fetch authenticated profile |
-| GET  | /posts | 🟢 Public | Retrieve paginated posts (w/ filters) |
-| POST | /posts | 🔒 Protected | Create a new blog post |
-| GET  | /posts/{id} | 🟢 Public | Fetch a specific post |
-| PUT  | /posts/{id} | 🔒 Protected | Update an owned post |
-| DELETE | /posts/{id} | 🔒 Protected | Delete an owned post |
-| GET  | /posts/{id}/comments | 🟢 Public | Retrieve comments for a post |
-| POST | /posts/{id}/comments | 🔒 Protected | Add a comment to a post |
-| DELETE | /comments/{id} | 🔒 Protected | Delete an owned comment |
+- **Email:** `admin@demo.com`
+- **Password:** `password`
 
-> **Note on Protected Routes:**
-> You must pass the generated token as a **Bearer Token** in the authorization header:  
-> Authorization: Bearer 1|your_token_string_here...
+## Configuration
 
----
+Update `.env` for your environment:
 
-## 🧪 Architecture & Testing
+- `DB_CONNECTION` (`sqlite` or `mysql`)
+- `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`
+- `APP_URL` (base URL for your environment)
 
-This API is structurally designed to handle high concurrency and scale. 
-* **N+1 Avoidance:** Eloquent models leverage eager loading implicitly mapped.
-* **Clean Code:** Standardized formatting enforced via Laravel Pint to PSR-12 / Laravel standards.
-* **Testing:** Postman collections and native Laravel feature tests are ready at your disposal (php artisan test).
+## API Documentation
+
+Detailed request/response documentation lives in [API_DOCUMENTATION.txt](./API_DOCUMENTATION.txt).
+
+### Base URL
+
+`/api/v1`
+
+### Auth Notes
+
+Send the token as a **Bearer** token:
+
+```
+Authorization: Bearer <token>
+```
+
+## Development Scripts
+
+```bash
+composer setup   # install deps, prepare env, migrate, and build assets
+composer dev     # run API server, queue, logs, and Vite in parallel
+```
+
+## Testing
+
+```bash
+composer test
+```
+
+## Linting
+
+```bash
+vendor/bin/pint --test
+```
+
+## Build Assets
+
+```bash
+npm run build
+```
+
+## Project Structure
+
+```
+app/
+  DTOs/        # Data transfer objects
+  Filters/     # Query filtering logic
+  Services/    # Business logic layer
+  Policies/    # Authorization policies
+  Http/        # Controllers, requests, middleware
+routes/
+  api.php      # API routes
+```
