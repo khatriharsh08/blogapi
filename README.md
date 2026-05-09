@@ -1,89 +1,88 @@
-# 🚀 Laravel 13 RESTful Blog API
+﻿# 🚀 Laravel 13 Enterprise RESTful Blog API
 
-A production-ready RESTful Blog API built using **Laravel 13.7**. This project demonstrates enterprise-level API design, utilizing robust service-repository patterns, strict request validation, and secure Sanctum token-based authentication.
+A production-ready, industry-standard RESTful Blog API built utilizing **Laravel 13**. This project demonstrates enterprise-level API design, leveraging Service-DTO architectural patterns, strict request validation, Gate authorization, and secure Sanctum token-based authentication.
 
 ---
 
 ## 🌟 Key Features
 
-* **Strict REST Architecture:** Properly scoped actions with explicit HTTP verbs (`GET`, `POST`, `PUT`, `DELETE`).
-* **Authentication:** Token-based authentication utilizing **Laravel Sanctum**.
-* **Service Pattern Logic:** Controllers are "thin" and focus only on requests/responses. All DB queries and complex rules live in `AuthService` and `PostService`.
-* **Form Requests:** Strict payload validation mapped directly to constraints (e.g., merging `body` into `content`).
-* **Ownership Authorization:** Users can only modify or delete the posts they explicitly own, returning `403 Forbidden` otherwise.
+* **Enterprise Architecture:** Action-oriented Thin Controllers with business logic abstracted into decoupled Services and Data Transfer Objects (DTOs).
+* **Strict Type Safety:** Strongly enforced declare(strict_types=1); and PHP 8.3 features across all classes.
+* **Advanced Security:** Route throttling (rate limiting), explicit Idempotency middleware, and centralized JSON exception handling.
+* **Authentication & Authorization:** Token-based authentication using **Laravel Sanctum**. Ownership restrictions natively enforced via Eloquent Policies and Gates.
+* **Form Requests:** Strict incoming payload validation mapped directly to robust HTTP Form request classes.
 
 ---
 
 ## 📦 Requirements
 
-* **PHP** ^8.2+
+* **PHP** ^8.3+
 * **Composer**
-* **MySQL** or **SQLite**
+* **MySQL / SQLite**
 
 ---
 
 ## 🛠️ Installation & Setup
 
 1. **Clone the repository:**
-   ```bash
+   `ash
    git clone <your-repository-url>
    cd blogapi
-   ```
+   `
 
 2. **Install dependencies:**
-   ```bash
+   `ash
    composer install
-   ```
+   `
 
 3. **Environment Setup:**
-   ```bash
+   `ash
    cp .env.example .env
    php artisan key:generate
-   ```
-   *Make sure to configure your DB credentials inside the `.env` file.*
+   `
 
-4. **Run Database Migrations:**
-   ```bash
-   php artisan migrate
-   ```
+4. **Run Database Migrations & Seeders:**
+   `ash
+   php artisan migrate --seed
+   `
 
 5. **Start the local server:**
-   ```bash
+   `ash
    php artisan serve
-   ```
+   `
 
 ---
 
-## 📡 API Endpoints Overview
+## 📖 API Documentation (Endpoints)
 
-All endpoints start with the `/api` prefix.
+For a complete deep-dive into request/response shapes, headers, and payloads, please see the [API_DOCUMENTATION.txt](./API_DOCUMENTATION.txt) included in this repository.
 
-| Method | Endpoint             | Access        | Description                           |
-| :---   | :---                 | :---          | :---                                  |
-| `POST` | `/api/register`      | 🟢 Public     | Register a new user and receive token |
-| `POST` | `/api/login`         | 🟢 Public     | Authenticate user and receive token   |
-| `GET`  | `/api/posts`         | 🟢 Public     | Retrieve all blog posts               |
-| `GET`  | `/api/posts/{id}`    | 🟢 Public     | Retrieve a specific blog post         |
-| `GET`  | `/api/user`          | 🔒 Protected  | Get authenticated user profile        |
-| `POST` | `/api/posts`         | 🔒 Protected  | Create a new blog post                |
-| `PUT`  | `/api/posts/{id}`    | 🔒 Protected  | Update an existing owned blog post    |
-| `DELETE`| `/api/posts/{id}`   | 🔒 Protected  | Delete an owned blog post             |
+**Quick Overview (Base URL: /api/v1)**
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| POST | /register | 🟢 Public | Register user & receive token |
+| POST | /login | 🟢 Public | Authenticate user & receive token |
+| POST | /logout | 🔒 Protected | Invalidate current token |
+| GET  | /me | 🔒 Protected | Fetch authenticated profile |
+| GET  | /posts | 🟢 Public | Retrieve paginated posts (w/ filters) |
+| POST | /posts | 🔒 Protected | Create a new blog post |
+| GET  | /posts/{id} | 🟢 Public | Fetch a specific post |
+| PUT  | /posts/{id} | 🔒 Protected | Update an owned post |
+| DELETE | /posts/{id} | 🔒 Protected | Delete an owned post |
+| GET  | /posts/{id}/comments | 🟢 Public | Retrieve comments for a post |
+| POST | /posts/{id}/comments | 🔒 Protected | Add a comment to a post |
+| DELETE | /comments/{id} | 🔒 Protected | Delete an owned comment |
 
 > **Note on Protected Routes:**
 > You must pass the generated token as a **Bearer Token** in the authorization header:  
-> `Authorization: Bearer 1|your_token_string_here...`
+> Authorization: Bearer 1|your_token_string_here...
 
 ---
 
-## 🧪 Testing
+## 🧪 Architecture & Testing
 
-You can use the built-in Postman collection provided in `/postman` or run Laravel's feature test suite to ensure all endpoints pass reliably:
-
-```bash
-php artisan test
-```
-
----
-
-## 📚 Architect's Note
-This API is structurally designed to handle scale. Logic is intentionally decoupled into `Services`, preventing monolithic, hard-to-maintain controllers. The `N+1` database query problems have been strictly avoided by ensuring Eloquent models implement eager loading (`with()`).
+This API is structurally designed to handle high concurrency and scale. 
+* **N+1 Avoidance:** Eloquent models leverage eager loading implicitly mapped.
+* **Clean Code:** Standardized formatting enforced via Laravel Pint to PSR-12 / Laravel standards.
+* **Testing:** Postman collections and native Laravel feature tests are ready at your disposal (php artisan test).
