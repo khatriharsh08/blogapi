@@ -1,0 +1,224 @@
+======================================================
+         BLOG API - FRONTEND DOCUMENTATION
+======================================================
+
+BASE URL: /api/v1
+CONTENT TYPE: application/json
+AUTHENTICATION: Bearer Token (Sanctum)
+
+------------------------------------------------------
+1. AUTHENTICATION
+------------------------------------------------------
+
+[ REGISTER ]
+Endpoint:  POST /register
+Auth:      Public
+RateLimit: None
+
+Payload (JSON):
+{
+  "name": "John Doe",             // required, string, max: 255
+  "email": "john@example.com",    // required, string, email, unique
+  "password": "secretpassword",   // required, string, min: 8, confirmed
+  "password_confirmation": "secretpassword"
+}
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "User registered successfully",
+  "data": {
+    "access_token": "1|tokenstring...",
+    "token_type": "Bearer",
+    "user": { "id": 1, "name": "John Doe", "email": "john..." }
+  }
+}
+
+[ LOGIN ]
+Endpoint:  POST /login
+Auth:      Public
+RateLimit: 5 requests per minute
+
+Payload (JSON):
+{
+  "email": "john@example.com",    // required, string
+  "password": "secretpassword"    // required, string
+}
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Logged in successfully",
+  "data": {
+    "access_token": "2|tokenstring...",
+    "token_type": "Bearer",
+    "user": { ... }
+  }
+}
+
+[ GET CURRENT USER ]
+Endpoint:  GET /me
+Auth:      Required (Bearer)
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "User fetched successfully",
+  "data": {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "created_at": "..."
+  }
+}
+
+[ LOGOUT ]
+Endpoint:  POST /logout
+Auth:      Required (Bearer)
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Logged out successfully",
+  "data": null
+}
+
+------------------------------------------------------
+2. POSTS
+------------------------------------------------------
+
+[ LIST POSTS ]
+Endpoint:  GET /posts
+Auth:      Public
+Params:
+  - search    (string, optional) - Keyword to search posts.
+  - sort      (string, optional) - 'asc' or 'desc'.
+  - author_id (integer, optional) - Filter by author ID.
+  - per_page  (integer, optional, default: 15) - Items per page.
+
+Response (200 OK): Standard Laravel Paginated Resource Collection
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Post Title",
+      "content": "Post Content",
+      "author": { "id": 1, "name": "John Doe" }
+    }
+  ],
+  "links": { ... },
+  "meta": { ... }
+}
+
+[ GET A SINGLE POST ]
+Endpoint:  GET /posts/{post_id}
+Auth:      Public
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Post fetched successfully",
+  "data": {
+    "id": 1,
+    "title": "Post Title",
+    "content": "Post Content"
+  }
+}
+*Note: Returns 404 if post doesn't exist.
+
+[ CREATE POST ]
+Endpoint:  POST /posts
+Auth:      Required (Bearer)
+
+Payload (JSON):
+{
+  "title": "My new post",  // required, string, max: 255
+  "content": "Full text"   // required, string
+}
+
+Response (201 Created): Returns the created post object.
+
+[ UPDATE POST ]
+Endpoint:  PUT /posts/{post_id}
+Auth:      Required (Bearer) - ONLY AUTHOR CAN UPDATE
+
+Payload (JSON):
+{
+  "title": "Updated post title",
+  "content": "Updated content text"
+}
+
+Response (200 OK): Returns the updated post object.
+*Note: Returns 403 Forbidden if user is not the author.
+
+[ DELETE POST ]
+Endpoint:  DELETE /posts/{post_id}
+Auth:      Required (Bearer) - ONLY AUTHOR CAN DELETE
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Post deleted successfully",
+  "data": null
+}
+
+------------------------------------------------------
+3. COMMENTS
+------------------------------------------------------
+
+[ GET POST COMMENTS ]
+Endpoint:  GET /posts/{post_id}/comments
+Auth:      Public
+Params:
+  - per_page  (integer, optional, default: 15) - Items per page.
+
+Response (200 OK): Standard Paginated Resource Collection.
+
+[ CREATE COMMENT ON POST ]
+Endpoint:  POST /posts/{post_id}/comments
+Auth:      Required (Bearer)
+
+Payload (JSON):
+{
+  "content": "This is a great post!"  // required, string, max: 1000
+}
+
+Response (201 Created):
+{
+  "success": true,
+  "message": "Comment created successfully",
+  "data": {
+    "id": 10,
+    "content": "This is a great post!",
+    "user": { ... }
+  }
+}
+
+[ DELETE COMMENT ]
+Endpoint:  DELETE /comments/{comment_id}
+Auth:      Required (Bearer) - ONLY AUTHOR CAN DELETE
+
+Response (200 OK):
+{
+  "success": true,
+  "message": "Comment deleted successfully",
+  "data": null
+}
+
+------------------------------------------------------
+ERROR HANDLING
+------------------------------------------------------
+Standard Error JSON Format:
+{
+  "success": false,
+  "message": "Error description",
+  "data": null // or validation errors map
+}
+
+Common Status Codes:
+- 401 Unauthorized (Missing or invalid Bearer token)
+- 403 Forbidden (Insufficient permissions / not owner)
+- 404 Not Found (Resource doesn't exist)
+- 422 Unprocessable Entity (Validation failed, errors in 'data' field)
+- 429 Too Many Requests (Rate limit exceeded)
+- 500 Internal Server Error
