@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\IdempotencyMiddleware;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Auth\AuthenticationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -19,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(append: [
-            \App\Http\Middleware\IdempotencyMiddleware::class,
+            IdempotencyMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -28,7 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'success' => false,
                     'data' => null,
-                    'message' => 'Resource not found.'
+                    'message' => 'Resource not found.',
                 ], 404);
             }
         });
@@ -38,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'success' => false,
                     'data' => $e->errors(),
-                    'message' => 'Validation Error'
+                    'message' => 'Validation Error',
                 ], 422);
             }
         });
@@ -48,17 +49,17 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'success' => false,
                     'data' => null,
-                    'message' => 'Unauthenticated.'
+                    'message' => 'Unauthenticated.',
                 ], 401);
             }
         });
 
-        $exceptions->render(function (\Throwable $e, Request $request) {
-            if ($request->is('api/*') && !config('app.debug')) {
+        $exceptions->render(function (Throwable $e, Request $request) {
+            if ($request->is('api/*') && ! config('app.debug')) {
                 return response()->json([
                     'success' => false,
                     'data' => null,
-                    'message' => 'Internal Server Error'
+                    'message' => 'Internal Server Error',
                 ], 500);
             }
         });

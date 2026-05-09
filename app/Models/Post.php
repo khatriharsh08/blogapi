@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[Fillable(['title', 'content', 'user_id'])]
 class Post extends Model
 {
-    use SoftDeletes, HasFactory;
-
-    protected $fillable = ['title', 'content', 'user_id'];
+    use HasFactory, SoftDeletes;
 
     public function user(): BelongsTo
     {

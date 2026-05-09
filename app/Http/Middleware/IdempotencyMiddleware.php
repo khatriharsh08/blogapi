@@ -12,21 +12,22 @@ class IdempotencyMiddleware
 {
     public function handle(Request $request, Closure $next): mixed
     {
-        if (!in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+        if (! in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
             return $next($request);
         }
 
         $idempotencyKey = $request->header('Idempotency-Key');
 
-        if (!$idempotencyKey) {
+        if (! $idempotencyKey) {
             return $next($request);
         }
 
         // Unique cache key based on the idempotency key and route
-        $cacheKey = 'idempotency_' . md5($idempotencyKey . '_' . $request->path());
+        $cacheKey = 'idempotency_'.md5($idempotencyKey.'_'.$request->path());
 
         if (Cache::has($cacheKey)) {
             $cachedResponse = Cache::get($cacheKey);
+
             return response($cachedResponse['content'], $cachedResponse['status'], $cachedResponse['headers']);
         }
 
@@ -36,7 +37,7 @@ class IdempotencyMiddleware
         if ($response->isSuccessful()) {
             Cache::put($cacheKey, [
                 'content' => $response->getContent(),
-                'status'  => $response->status(),
+                'status' => $response->status(),
                 'headers' => $response->headers->all(),
             ], now()->addDay());
         }

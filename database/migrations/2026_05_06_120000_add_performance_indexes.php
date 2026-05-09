@@ -12,8 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('posts', function (Blueprint $table) {
-            // Index for our AuthorFilter
-            $table->index('user_id');
             // Index for Cursor Pagination ordering
             $table->index('created_at');
         });

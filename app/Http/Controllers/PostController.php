@@ -4,57 +4,56 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
-use App\Providers\PostService;
+use App\DTOs\PostData;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Http\Resources\PostResource;
 use App\Models\Post;
+use App\Services\PostService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Gate;
 
-readonly class PostController extends Controller
+class PostController extends Controller
 {
-    public function __construct(private PostService $postService)
-    {
-    }
+    public function __construct(private readonly PostService $postService) {}
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request): AnonymousResourceCollection
     {
         $filters = $request->only(['author_id', 'search', 'sort']);
         $perPage = (int) $request->input('per_page', 15);
-        
+
         $posts = $this->postService->getAll($filters, $perPage);
-        
-        return $this->success(
-            PostResource::collection($posts)->response()->getData(true),
-            'Posts fetched successfully'
-        );
+
+        // Return standard Laravel Resource response
+        return PostResource::collection($posts);
     }
 
     public function store(StorePostRequest $request): JsonResponse
     {
-        $post = $this->postService->create($request->validated());
+        $post = $this->postService->create(PostData::fromArray($request->validated()));
+
         return $this->success(new PostResource($post), 'Post created successfully', 201);
     }
 
     public function show(int $id): JsonResponse
     {
-        // Offload caching and complex relation fetching to the Service layer
-        $postData = $this->postService->getPostWithComments($id);
+        // Offload caching to the Service layer
+        $post = $this->postService->getPost($id);
 
-        if (!$postData) {
+        if (! $post) {
             return $this->error('Post not found', 404);
         }
 
-        return $this->success($postData, 'Post fetched successfully');
+        return $this->success(new PostResource($post), 'Post fetched successfully');
     }
 
     public function update(UpdatePostRequest $request, Post $post): JsonResponse
     {
         Gate::authorize('update', $post);
 
-        $updatedPost = $this->postService->update($post, $request->validated());
+        $updatedPost = $this->postService->update($post, PostData::fromArray($request->validated()));
 
         return $this->success(new PostResource($updatedPost), 'Post updated successfully');
     }

@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+#[Fillable(['post_id', 'user_id', 'content'])]
 class Comment extends Model
 {
-    use SoftDeletes, HasFactory;
-
-    protected $fillable = ['post_id', 'user_id', 'content'];
+    use HasFactory, SoftDeletes;
 
     public function post(): BelongsTo
     {

@@ -13,7 +13,7 @@ trait ApiResponser
         return response()->json([
             'success' => true,
             'data' => $data,
-            'message' => $message
+            'message' => $message,
         ], $code);
     }
 
@@ -22,7 +22,7 @@ trait ApiResponser
         return response()->json([
             'success' => false,
             'data' => null,
-            'message' => $message
+            'message' => $message,
         ], $code);
     }
 }

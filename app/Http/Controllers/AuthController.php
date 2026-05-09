@@ -4,48 +4,49 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Providers\AuthService;
-use App\Http\Requests\RegisterRequest;
+use App\DTOs\LoginData;
+use App\DTOs\RegisterData;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Services\AuthService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
-readonly class AuthController extends Controller
+class AuthController extends Controller
 {
-    public function __construct(private AuthService $authService)
-    {
-    }
+    public function __construct(private readonly AuthService $authService) {}
 
     public function register(RegisterRequest $request): JsonResponse
     {
-        $user = $this->authService->register($request->validated());
-        
+        $user = $this->authService->register(RegisterData::fromArray($request->validated()));
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return $this->success([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $user
+            'user' => $user,
         ], 'User registered successfully', 201);
     }
 
     public function login(LoginRequest $request): JsonResponse
     {
-        $token = $this->authService->login($request->only('email', 'password'));
-        if (!$token) {
+        $token = $this->authService->login(LoginData::fromArray($request->only('email', 'password')));
+        if (! $token) {
             return $this->error('Invalid credentials', 401);
         }
-        
+
         return $this->success([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => auth()->user()
+            'user' => auth()->user(),
         ], 'Logged in successfully', 200);
     }
 
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
+
         return $this->success(null, 'Logged out successfully', 200);
     }
 

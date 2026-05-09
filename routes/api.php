@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -19,13 +18,13 @@ Route::prefix('v1')->group(function () {
         Route::get('/me', [AuthController::class, 'me']);
 
         Route::controller(PostController::class)->group(function () {
-            Route::post('/posts', 'store');
+            Route::post('/posts', 'store')->middleware('throttle:api');
             Route::put('/posts/{post}', 'update');
             Route::delete('/posts/{post}', 'destroy');
         });
 
         Route::controller(CommentController::class)->group(function () {
-            Route::post('/posts/{post}/comments', 'store');
+            Route::post('/posts/{post}/comments', 'store')->middleware('throttle:api');
             Route::delete('/comments/{comment}', 'destroy');
         });
     });

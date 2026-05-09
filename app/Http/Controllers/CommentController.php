@@ -4,38 +4,35 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
-use App\Models\Comment;
+use App\DTOs\CommentData;
 use App\Http\Resources\CommentResource;
-use Illuminate\Http\Request;
+use App\Models\Comment;
+use App\Models\Post;
+use App\Services\CommentService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
 
 class CommentController extends Controller
 {
-    public function index(Post $post): JsonResponse
-    {
-        $comments = $post->comments()
-            ->with('user')
-            ->latest()
-            ->cursorPaginate(15);
+    public function __construct(private readonly CommentService $commentService) {}
 
-        return $this->success(
-            CommentResource::collection($comments)->response()->getData(true),
-            'Comments fetched successfully'
-        );
+    public function index(Request $request, Post $post): AnonymousResourceCollection
+    {
+        $perPage = (int) $request->input('per_page', 15);
+        $comments = $this->commentService->getForPost($post, $perPage);
+
+        return CommentResource::collection($comments);
     }
 
     public function store(Request $request, Post $post): JsonResponse
     {
         $validated = $request->validate([
-            'content' => 'required|string|max:1000'
+            'content' => 'required|string|max:1000',
         ]);
 
-        $comment = $post->comments()->create([
-            'user_id' => $request->user()->id,
-            'content' => $validated['content']
-        ]);
+        $comment = $this->commentService->create($post, CommentData::fromArray($validated));
 
         return $this->success(
             new CommentResource($comment->load('user')),
@@ -47,8 +44,9 @@ class CommentController extends Controller
     public function destroy(Comment $comment): JsonResponse
     {
         Gate::authorize('delete', $comment);
-        
-        $comment->delete();
+
+        $this->commentService->delete($comment);
+
         return $this->success(null, 'Comment deleted successfully', 200);
     }
 }
