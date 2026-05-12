@@ -1,0 +1,31 @@
+erDiagram
+    USERS ||--o{ POSTS : "creates"
+    USERS ||--o{ COMMENTS : "writes"
+    POSTS ||--o{ COMMENTS : "has"
+
+    USERS {
+        bigint id PK
+        string name
+        string email
+        string password
+        datetime created_at
+        datetime updated_at
+    }
+
+    POSTS {
+        bigint id PK
+        bigint user_id FK
+        string title
+        text content
+        datetime created_at
+        datetime updated_at
+    }
+
+    COMMENTS {
+        bigint id PK
+        bigint post_id FK
+        bigint user_id FK
+        text content
+        datetime created_at
+        datetime updated_at
+    }

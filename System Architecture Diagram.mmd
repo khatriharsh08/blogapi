@@ -1,0 +1,21 @@
+graph TD;
+    Client([Client App / API Client]) -->|HTTP Request| Router(API Routes)
+    Router -->|Auth Sanctum| Middleware(Middleware)
+    Middleware --> Controllers(Controllers)
+    
+    subgraph Application Layer
+        Controllers -->|Form Requests / DTOs| Services(Services)
+        Services -->|Business Logic| Models(Models)
+        Services -->|Search & Sort| Filters(Filters)
+    end
+    
+    subgraph Data Layer
+        Filters --> Models
+        Models <-->|Eloquent ORM| DB[(Database)]
+    end
+    
+    subgraph Presentation Layer
+        Models -.->|Transformers| Resources(API Resources)
+        Resources -.-> Controllers
+        Controllers -->|JSON Response| Client
+    end
